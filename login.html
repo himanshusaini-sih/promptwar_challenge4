@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - FIFA AI Stadium Companion</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
+    <style>
+        .login-wrapper { min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 2rem; }
+        .login-box { width: 100%; max-width: 480px; padding: 3rem; }
+        .error-msg { display: none; background: rgba(239, 68, 68, 0.1); border: 1px solid rgba(239, 68, 68, 0.3); color: #fca5a5; padding: 1rem; border-radius: 12px; margin-bottom: 1.5rem; font-size: 0.875rem; }
+    </style>
+</head>
+<body>
+    <div class="login-wrapper">
+        <div class="glass login-box">
+            <h1 style="margin-bottom: 0.5rem; font-size: 2rem;">Sign In</h1>
+            <p style="color: var(--text-muted); margin-bottom: 2rem;">Access your Stadium AI Portal</p>
+            <form id="loginForm">
+                <div class="form-group">
+                    <label>Email Address</label>
+                    <input type="email" class="form-control" placeholder="user@example.com" required>
+                </div>
+                <div class="form-group">
+                    <label>Password</label>
+                    <input type="password" class="form-control" placeholder="••••••••" required>
+                </div>
+                <div class="form-group" style="margin-bottom: 2rem;">
+                    <label>Select Role (Demo Routing)</label>
+                    <select id="roleSelect" class="form-control">
+                        <option value="fan.html">Fan</option>
+                        <option value="volunteer.html">Volunteer</option>
+                        <option value="staff.html">Staff</option>
+                        <option value="organizer.html">Organizer</option>
+                        <option value="admin.html">Admin</option>
+                    </select>
+                </div>
+                <button type="submit" class="btn" style="width: 100%;">Sign In</button>
+            </form>
+        </div>
+    </div>
+    <script>
+        document.getElementById('loginForm').addEventListener('submit', (e) => {
+            e.preventDefault();
+            window.location.href = document.getElementById('roleSelect').value;
+        });
+    </script>
+</body>
+</html>

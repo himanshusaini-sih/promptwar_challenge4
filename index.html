@@ -1,0 +1,473 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>StadiumAI - FIFA World Cup 2026</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Orbitron:wght@700;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        body, html { margin: 0; padding: 0; overflow-x: hidden; background: #0b3d22; color: #fff; scroll-behavior: smooth; }
+        
+        /* Ultra Realistic Stadium Background */
+        .stadium-bg {
+            position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; z-index: -1;
+            background-image: 
+                linear-gradient(to bottom, rgba(0, 0, 0, 0.8) 0%, rgba(11, 61, 34, 0.6) 100%),
+                url('https://images.unsplash.com/photo-1518605368461-1ee7c532066d?q=80&w=2000&auto=format&fit=crop');
+            background-size: cover; background-position: center;
+        }
+
+        /* Navbar */
+        .navbar { display: flex; justify-content: space-between; align-items: center; padding: 1.5rem 4rem; background: rgba(0, 0, 0, 0.7); backdrop-filter: blur(15px); position: sticky; top: 0; z-index: 100; border-bottom: 1px solid rgba(255, 255, 255, 0.1); }
+        .logo { font-family: 'Orbitron', sans-serif; font-size: 1.5rem; font-weight: 900; color: #fff; text-transform: uppercase; letter-spacing: 2px; }
+        .nav-links { display: flex; gap: 2rem; align-items: center; }
+        .nav-links a { color: #e2e8f0; font-weight: 500; transition: color 0.2s; }
+        .nav-links a:hover { color: #4ade80; }
+        
+        /* Sections */
+        section { padding: 6rem 4rem; max-width: 1400px; margin: 0 auto; }
+        .section-title { font-family: 'Orbitron', sans-serif; font-size: 3.5rem; text-align: center; margin-bottom: 3rem; color: #fff; text-shadow: 0 4px 20px rgba(0,0,0,0.5); }
+
+        /* Hero Section */
+        .hero { display: flex; flex-direction: column; align-items: center; text-align: center; padding-top: 2rem; }
+        .hero h1 { font-family: 'Orbitron', sans-serif; font-size: 4.5rem; margin-bottom: 1rem; line-height: 1.1; text-shadow: 0 5px 15px rgba(0,0,0,0.8); }
+        .hero p { font-size: 1.25rem; color: #cbd5e1; max-width: 700px; margin-bottom: 2rem; text-shadow: 0 2px 5px rgba(0,0,0,0.8); }
+
+        /* 3D Mini Game Container */
+        .game-container { position: relative; background: rgba(0, 0, 0, 0.6); padding: 10px; border-radius: 12px; border: 4px solid #1f2937; box-shadow: 0 30px 60px rgba(0,0,0,0.8); margin-bottom: 3rem; }
+        canvas { display: block; border-radius: 8px; cursor: crosshair; background: #000; }
+        .game-overlay { position: absolute; top: 20px; left: 30px; right: 30px; display: flex; justify-content: space-between; pointer-events: none; }
+        .score-board { font-family: 'Orbitron', sans-serif; font-size: 2.5rem; color: #fff; text-shadow: 0 4px 10px rgba(0,0,0,0.9); }
+
+        /* Features */
+        .features-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 2rem; }
+        .feature-card { background: rgba(0, 0, 0, 0.6); border: 1px solid rgba(255, 255, 255, 0.1); padding: 2.5rem; border-radius: 24px; transition: transform 0.3s; backdrop-filter: blur(10px); }
+        .feature-card:hover { transform: translateY(-10px); border-color: #4ade80; }
+        .feature-icon { width: 60px; height: 60px; background: rgba(74, 222, 128, 0.1); border-radius: 16px; display: flex; align-items: center; justify-content: center; color: #4ade80; margin-bottom: 1.5rem; }
+        .feature-card h3 { font-size: 1.5rem; margin-bottom: 1rem; color: #fff; }
+        .feature-card p { color: #cbd5e1; line-height: 1.6; }
+
+        /* Main CTA */
+        .btn-glow { background: #4ade80; color: #064e3b; padding: 15px 40px; font-size: 1.1rem; border-radius: 30px; text-transform: uppercase; font-weight: 900; transition: all 0.3s; display: inline-block; box-shadow: 0 0 20px rgba(74, 222, 128, 0.4); text-shadow: none; border: none; cursor: pointer; }
+        .btn-glow:hover { background: #22c55e; box-shadow: 0 0 40px rgba(74, 222, 128, 0.8); transform: scale(1.05); }
+
+        /* Image Preloaders (Hidden) */
+        #assets { display: none; }
+    </style>
+</head>
+<body>
+
+    <div class="stadium-bg"></div>
+
+    <!-- Hidden Assets for Canvas -->
+    <div id="assets">
+        <img id="imgBall" src="https://upload.wikimedia.org/wikipedia/commons/d/d3/Soccerball.svg" alt="football">
+        <!-- High Quality Goalkeeper PNG -->
+        <img id="imgKeeper" src="https://upload.wikimedia.org/wikipedia/commons/thumb/1/1d/Football_goalkeeper_silhouette.svg/512px-Football_goalkeeper_silhouette.svg.png" alt="keeper">
+        <!-- Grass Texture -->
+        <img id="imgGrass" src="https://upload.wikimedia.org/wikipedia/commons/5/55/Grass_Texture_1.jpg" alt="grass">
+    </div>
+
+    <nav class="navbar">
+        <div class="logo">⚽ StadiumAI</div>
+        <div class="nav-links">
+            <a href="#home">Home</a>
+            <a href="#features">Features</a>
+            <a href="login.html" class="btn-glow" style="padding: 10px 24px; font-size: 0.9rem;">Login Portal</a>
+        </div>
+    </nav>
+
+    <section id="home" class="hero">
+        <h1>Next-Gen Stadium Experience</h1>
+        <p>The official smart management platform for the FIFA World Cup 2026. Play the penalty shootout below while you wait!</p>
+        
+        <div class="game-container">
+            <div class="game-overlay">
+                <div class="score-board">SCORE: <span id="scoreVal" style="color: #4ade80;">0</span></div>
+                <div class="score-board">ATTEMPTS: <span id="attemptsVal">0</span></div>
+            </div>
+            <canvas id="gameCanvas" width="900" height="500"></canvas>
+            <p style="margin-top: 1rem; color: #e2e8f0; font-size: 1rem; font-weight: 600;">🎮 <strong>Play:</strong> Click and drag the ball backwards to aim and set power. Beat the goalkeeper!</p>
+        </div>
+    </section>
+
+    <section id="features">
+        <h2 class="section-title">Core Modules</h2>
+        <div class="features-grid">
+            <div class="feature-card">
+                <div class="feature-icon"><i data-lucide="bot" size="32"></i></div>
+                <h3>AI Assistant</h3>
+                <p>Real-time GenAI chatbot that answers fan queries, provides dynamic routing, and suggests food based on queue times.</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon"><i data-lucide="map" size="32"></i></div>
+                <h3>Smart Navigation</h3>
+                <p>Interactive 3D stadium maps with live crowd density heatmaps to help you find the fastest route to your seat.</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon"><i data-lucide="shield" size="32"></i></div>
+                <h3>Command Center</h3>
+                <p>Dedicated portals for Staff and Organizers to monitor CCTV, manage incidents, and deploy emergency teams instantly.</p>
+            </div>
+        </div>
+    </section>
+
+    <footer style="text-align: center; padding: 3rem; background: rgba(0,0,0,0.8); border-top: 1px solid rgba(255, 255, 255, 0.1); color: #64748b; margin-top: 4rem;">
+        <p>© 2026 StadiumAI Platform. All rights reserved.</p>
+    </footer>
+
+    <!-- Realistic 3D Penalty Kick Game Script -->
+    <script>
+        lucide.createIcons();
+
+        const canvas = document.getElementById('gameCanvas');
+        const ctx = canvas.getContext('2d');
+        
+        // Load Assets
+        const imgBall = document.getElementById('imgBall');
+        const imgKeeper = document.getElementById('imgKeeper');
+        const imgGrass = document.getElementById('imgGrass');
+        
+        let score = 0;
+        let attempts = 0;
+        let gameState = 'idle'; // idle, aiming, flying, result
+        
+        // 3D Perspective settings
+        const HORIZON_Y = 160;
+        
+        // Entities
+        let ball = { x: 450, y: 430, z: 0, radius: 25, vx: 0, vy: 0, vz: 0, rotation: 0 };
+        const START_BALL = { x: 450, y: 430, z: 0, radius: 25, rotation: 0 };
+        
+        // Goalkeeper
+        let gk = { x: 450, width: 90, height: 110, speed: 4, direction: 1, diveTarget: null };
+        
+        // Mouse state
+        let dragStart = { x: 0, y: 0 };
+        let currentMouse = { x: 0, y: 0 };
+        
+        // Events
+        canvas.addEventListener('mousedown', (e) => {
+            if (gameState !== 'idle') return;
+            const rect = canvas.getBoundingClientRect();
+            const mx = e.clientX - rect.left;
+            const my = e.clientY - rect.top;
+            
+            if (Math.hypot(mx - ball.x, my - ball.y) < 40) {
+                gameState = 'aiming';
+                dragStart = { x: mx, y: my };
+                currentMouse = { x: mx, y: my };
+            }
+        });
+
+        canvas.addEventListener('mousemove', (e) => {
+            if (gameState === 'aiming') {
+                const rect = canvas.getBoundingClientRect();
+                currentMouse.x = e.clientX - rect.left;
+                currentMouse.y = e.clientY - rect.top;
+            }
+        });
+
+        window.addEventListener('mouseup', (e) => {
+            if (gameState === 'aiming') {
+                const dx = dragStart.x - currentMouse.x;
+                const dy = dragStart.y - currentMouse.y; 
+                
+                if (dy > 20) {
+                    // Kick!
+                    ball.vx = dx * 0.12;
+                    ball.vy = dy * 0.08; 
+                    ball.vz = dy * 0.2; 
+                    
+                    // GK AI - predict where ball will go and dive
+                    gk.diveTarget = ball.x + (ball.vx * 30); 
+                    
+                    gameState = 'flying';
+                    attempts++;
+                    document.getElementById('attemptsVal').innerText = attempts;
+                } else {
+                    gameState = 'idle';
+                }
+            }
+        });
+
+        function resetGame(delay) {
+            setTimeout(() => {
+                ball = { ...START_BALL };
+                gk.x = 450;
+                gk.diveTarget = null;
+                gameState = 'idle';
+            }, delay);
+        }
+
+        // Draw Realistic Pitch
+        function drawPitch() {
+            // Sky
+            const skyGrad = ctx.createLinearGradient(0, 0, 0, HORIZON_Y);
+            skyGrad.addColorStop(0, '#0f172a');
+            skyGrad.addColorStop(1, '#1e293b');
+            ctx.fillStyle = skyGrad;
+            ctx.fillRect(0, 0, canvas.width, HORIZON_Y);
+            
+            // Stadium Lights in Background
+            ctx.fillStyle = 'rgba(255, 255, 255, 0.8)';
+            ctx.shadowBlur = 20; ctx.shadowColor = '#fff';
+            ctx.beginPath(); ctx.arc(200, 80, 5, 0, Math.PI*2); ctx.fill();
+            ctx.beginPath(); ctx.arc(700, 80, 5, 0, Math.PI*2); ctx.fill();
+            ctx.shadowBlur = 0;
+
+            // Grass Pattern
+            if(imgGrass.complete && imgGrass.naturalHeight !== 0) {
+                // Create a perspective grass effect by drawing trapezoids or scaling image
+                ctx.save();
+                ctx.beginPath();
+                ctx.moveTo(0, canvas.height);
+                ctx.lineTo(canvas.width, canvas.height);
+                ctx.lineTo(canvas.width, HORIZON_Y);
+                ctx.lineTo(0, HORIZON_Y);
+                ctx.clip();
+                
+                // Darken ground near horizon
+                const groundGrad = ctx.createLinearGradient(0, HORIZON_Y, 0, canvas.height);
+                groundGrad.addColorStop(0, '#064e3b');
+                groundGrad.addColorStop(1, '#22c55e');
+                ctx.fillStyle = groundGrad;
+                ctx.fillRect(0, HORIZON_Y, canvas.width, canvas.height - HORIZON_Y);
+                
+                // Field stripes
+                ctx.fillStyle = 'rgba(0,0,0,0.1)';
+                ctx.beginPath(); ctx.moveTo(0, canvas.height); ctx.lineTo(canvas.width/2 - 100, HORIZON_Y); ctx.lineTo(canvas.width/2 - 50, HORIZON_Y); ctx.lineTo(200, canvas.height); ctx.fill();
+                ctx.beginPath(); ctx.moveTo(400, canvas.height); ctx.lineTo(canvas.width/2 + 50, HORIZON_Y); ctx.lineTo(canvas.width/2 + 100, HORIZON_Y); ctx.lineTo(600, canvas.height); ctx.fill();
+                ctx.beginPath(); ctx.moveTo(800, canvas.height); ctx.lineTo(canvas.width/2 + 250, HORIZON_Y); ctx.lineTo(canvas.width/2 + 300, HORIZON_Y); ctx.lineTo(1000, canvas.height); ctx.fill();
+                
+                ctx.restore();
+            } else {
+                ctx.fillStyle = '#15803d';
+                ctx.fillRect(0, HORIZON_Y, canvas.width, canvas.height - HORIZON_Y);
+            }
+            
+            // White Pitch Lines
+            ctx.strokeStyle = 'rgba(255,255,255,0.8)';
+            ctx.lineWidth = 3;
+            
+            // Penalty box
+            ctx.beginPath();
+            ctx.moveTo(150, canvas.height); ctx.lineTo(300, HORIZON_Y + 40); // Left
+            ctx.moveTo(750, canvas.height); ctx.lineTo(600, HORIZON_Y + 40); // Right
+            ctx.moveTo(300, HORIZON_Y + 40); ctx.lineTo(600, HORIZON_Y + 40); // Top
+            ctx.stroke();
+            
+            // Goal Area
+            ctx.beginPath();
+            ctx.moveTo(300, canvas.height); ctx.lineTo(380, HORIZON_Y + 15);
+            ctx.moveTo(600, canvas.height); ctx.lineTo(520, HORIZON_Y + 15);
+            ctx.moveTo(380, HORIZON_Y + 15); ctx.lineTo(520, HORIZON_Y + 15);
+            ctx.stroke();
+            
+            // Penalty arc
+            ctx.beginPath();
+            ctx.ellipse(450, HORIZON_Y + 40, 90, 25, 0, 0, Math.PI);
+            ctx.stroke();
+            
+            // Penalty spot
+            ctx.fillStyle = '#fff';
+            ctx.beginPath(); ctx.arc(450, 430, 6, 0, Math.PI*2); ctx.fill();
+        }
+
+        // Draw Realistic Goal
+        function drawGoal() {
+            const gLeft = 330, gRight = 570, gTop = HORIZON_Y - 90, gBottom = HORIZON_Y;
+            
+            // Back net
+            ctx.strokeStyle = 'rgba(255,255,255,0.4)';
+            ctx.lineWidth = 1.5;
+            for(let i=gLeft; i<=gRight; i+=15) { ctx.beginPath(); ctx.moveTo(i, gBottom); ctx.lineTo(i, gTop); ctx.stroke(); }
+            for(let i=gTop; i<=gBottom; i+=15) { ctx.beginPath(); ctx.moveTo(gLeft, i); ctx.lineTo(gRight, i); ctx.stroke(); }
+            
+            // Goal posts (Realistic cylinders)
+            const postGrad = ctx.createLinearGradient(gLeft-5, 0, gLeft+5, 0);
+            postGrad.addColorStop(0, '#e2e8f0'); postGrad.addColorStop(0.5, '#fff'); postGrad.addColorStop(1, '#94a3b8');
+            
+            ctx.fillStyle = postGrad;
+            ctx.fillRect(gLeft - 4, gTop, 8, gBottom - gTop); // Left post
+            ctx.fillRect(gRight - 4, gTop, 8, gBottom - gTop); // Right post
+            
+            const barGrad = ctx.createLinearGradient(0, gTop-4, 0, gTop+4);
+            barGrad.addColorStop(0, '#e2e8f0'); barGrad.addColorStop(0.5, '#fff'); barGrad.addColorStop(1, '#94a3b8');
+            ctx.fillStyle = barGrad;
+            ctx.fillRect(gLeft - 4, gTop - 4, (gRight - gLeft) + 8, 8); // Crossbar
+        }
+
+        // Draw Goalkeeper
+        function drawGoalkeeper() {
+            // Idle movement
+            if (gameState === 'idle' || gameState === 'aiming') {
+                gk.x += gk.speed * gk.direction;
+                if (gk.x < 370) gk.direction = 1;
+                if (gk.x > 530) gk.direction = -1;
+            } 
+            // Dive logic
+            else if (gameState === 'flying' && gk.diveTarget) {
+                // Move towards where ball is going
+                if (gk.x < gk.diveTarget) gk.x += 8;
+                if (gk.x > gk.diveTarget) gk.x -= 8;
+                
+                // Constrain GK to goal area
+                if (gk.x < 330) gk.x = 330;
+                if (gk.x > 570) gk.x = 570;
+            }
+            
+            // Draw real image or fallback
+            if(imgKeeper.complete && imgKeeper.naturalHeight !== 0) {
+                // Give it a shadow
+                ctx.shadowBlur = 10; ctx.shadowColor = 'rgba(0,0,0,0.5)';
+                ctx.drawImage(imgKeeper, gk.x - gk.width/2, HORIZON_Y - gk.height, gk.width, gk.height);
+                ctx.shadowBlur = 0;
+            } else {
+                ctx.fillStyle = '#facc15';
+                ctx.beginPath();
+                ctx.roundRect(gk.x - gk.width/2, HORIZON_Y - gk.height, gk.width, gk.height, 10);
+                ctx.fill();
+            }
+        }
+
+        // Draw Real Football
+        function drawBall() {
+            const scale = Math.max(0.15, 1 - (ball.z / 400));
+            const r = ball.radius * scale;
+            
+            // Draw ball shadow
+            if (ball.y < 430) {
+                ctx.fillStyle = 'rgba(0,0,0,0.4)';
+                ctx.beginPath();
+                ctx.ellipse(ball.x, 430 - (ball.z * 0.5), r*1.2, r*0.5, 0, 0, Math.PI*2);
+                ctx.fill();
+            }
+
+            if(imgBall.complete && imgBall.naturalHeight !== 0) {
+                ctx.save();
+                ctx.translate(ball.x, ball.y);
+                ball.rotation += (ball.vx + ball.vy + ball.vz) * 0.05;
+                ctx.rotate(ball.rotation);
+                ctx.drawImage(imgBall, -r, -r, r*2, r*2);
+                ctx.restore();
+            } else {
+                ctx.beginPath();
+                ctx.arc(ball.x, ball.y, Math.max(1, r), 0, Math.PI * 2);
+                ctx.fillStyle = '#fff';
+                ctx.fill();
+                ctx.stroke();
+            }
+        }
+
+        function updatePhysics() {
+            if (gameState === 'flying') {
+                ball.x += ball.vx;
+                ball.y -= ball.vy; 
+                ball.z += ball.vz;
+                
+                ball.vy -= 0.6; // Gravity
+                
+                // Depth limit reached (Goal line)
+                if (ball.z > 350) {
+                    // Goal bounds
+                    if (ball.x > 330 && ball.x < 570 && ball.y > HORIZON_Y - 90 && ball.y < HORIZON_Y + 10) {
+                        
+                        // Check collision with GK
+                        if (Math.abs(ball.x - gk.x) < gk.width/2 + 15 && ball.y > HORIZON_Y - gk.height) {
+                            gameState = 'saved';
+                            ball.vy = 3; 
+                            ball.vz = -8;
+                            ball.vx *= -0.5;
+                            resetGame(1500);
+                        } else {
+                            gameState = 'scored';
+                            score++;
+                            document.getElementById('scoreVal').innerText = score;
+                            ball.vx = 0; ball.vy = 0; ball.vz = 0; 
+                            resetGame(2000);
+                        }
+                    } else {
+                        gameState = 'missed';
+                        resetGame(1500);
+                    }
+                }
+                
+                // Ground bounce
+                const groundY = 430 - (ball.z * 0.5); // Perspective ground line
+                if (ball.y > groundY && ball.vy < 0) {
+                    ball.y = groundY;
+                    ball.vy *= -0.6; 
+                }
+            }
+        }
+
+        function drawUI() {
+            if (gameState === 'aiming') {
+                ctx.beginPath();
+                ctx.moveTo(ball.x, ball.y);
+                const dx = dragStart.x - currentMouse.x;
+                const dy = dragStart.y - currentMouse.y;
+                
+                ctx.lineTo(ball.x + dx * 1.5, ball.y - dy * 1.5);
+                ctx.strokeStyle = 'rgba(255, 255, 255, 0.8)';
+                ctx.lineWidth = 4;
+                ctx.setLineDash([10, 10]);
+                ctx.stroke();
+                ctx.setLineDash([]);
+                
+                // Power indicator circle
+                ctx.beginPath();
+                ctx.arc(ball.x, ball.y, Math.min(Math.hypot(dx, dy), 100), 0, Math.PI*2);
+                ctx.strokeStyle = 'rgba(74, 222, 128, 0.4)';
+                ctx.stroke();
+            }
+            
+            if (gameState === 'scored') {
+                ctx.font = "900 80px 'Orbitron'";
+                ctx.fillStyle = "#4ade80";
+                ctx.textAlign = "center";
+                ctx.shadowBlur = 30; ctx.shadowColor = "#4ade80";
+                ctx.fillText("GOAL!", 450, 250);
+                ctx.shadowBlur = 0;
+            } else if (gameState === 'missed') {
+                ctx.font = "900 80px 'Orbitron'";
+                ctx.fillStyle = "#ef4444";
+                ctx.textAlign = "center";
+                ctx.shadowBlur = 30; ctx.shadowColor = "#ef4444";
+                ctx.fillText("MISSED!", 450, 250);
+                ctx.shadowBlur = 0;
+            } else if (gameState === 'saved') {
+                ctx.font = "900 80px 'Orbitron'";
+                ctx.fillStyle = "#facc15";
+                ctx.textAlign = "center";
+                ctx.shadowBlur = 30; ctx.shadowColor = "#facc15";
+                ctx.fillText("WHAT A SAVE!", 450, 250);
+                ctx.shadowBlur = 0;
+            }
+        }
+
+        function gameLoop() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            
+            drawPitch();
+            drawGoal();
+            drawGoalkeeper();
+            
+            updatePhysics();
+            drawBall();
+            
+            drawUI();
+            
+            requestAnimationFrame(gameLoop);
+        }
+
+        // Wait a tiny bit for images to load before starting loop
+        window.onload = () => {
+            gameLoop();
+        };
+    </script>
+</body>
+</html>
